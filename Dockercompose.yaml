@@ -1,8 +1,9 @@
-version: '3'
+version: '3.8'
 
 services:
   db:
-    image: mariadb:latest
+    image: mariadb:10.6
+    restart: always
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: espocrm
@@ -13,6 +14,7 @@ services:
 
   espocrm:
     image: espocrm/espocrm
+    restart: always
     ports:
       - "8085:80"
     depends_on:
@@ -25,6 +27,26 @@ services:
     volumes:
       - espo_data:/var/www/html
 
-volumes:
-  db_data:
-  espo_data:
+  init:
+    image: espocrm/espocrm
+    depends_on:
+      - db
+      - espocrm
+    entrypoint: >
+      bash -c "
+      echo '⏳ Waiting for EspoCRM...';
+      sleep 15;
+
+      echo '⚙️ Running install...';
+      php command.php install \
+        --db-host-name=db \
+        --db-name=espocrm \
+        --db-user-name=espo \
+        --db-password=espo \
+        --admin-user-name=admin \
+        --admin-password=admin123 \
+        --admin-email=admin@example.com \
+        --site-url=http://localhost:8080;
+
+      echo '✅ Done!';
+      "
