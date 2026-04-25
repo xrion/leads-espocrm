@@ -14,7 +14,7 @@ services:
   espocrm:
     image: espocrm/espocrm
     ports:
-      - "8080:80"
+      - "8085:80"
     depends_on:
       - db
     environment:
