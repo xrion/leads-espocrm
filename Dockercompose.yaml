@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: espocrm
+      MARIADB_USER: espo
+      MARIADB_PASSWORD: espo
+    volumes:
+      - db_data:/var/lib/mysql
+
+  espocrm:
+    image: espocrm/espocrm
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      ESPOCRM_DATABASE_HOST: db
+      ESPOCRM_DATABASE_NAME: espocrm
+      ESPOCRM_DATABASE_USER: espo
+      ESPOCRM_DATABASE_PASSWORD: espo
+    volumes:
+      - espo_data:/var/www/html
+
+volumes:
+  db_data:
+  espo_data:
